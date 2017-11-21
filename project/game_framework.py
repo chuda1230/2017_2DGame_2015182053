@@ -1,4 +1,7 @@
+import random
+from pico2d import *
 from os import *
+import main_state
 class GameState:
     def __init__(self, state):
         self.enter = state.enter
@@ -27,10 +30,10 @@ class TestGameState:
     def resume(self):
         print("State [%s] Resumed" % self.name)
 
-    def handle_events(self):
+    def handle_events(self,frame_time):
         print("State [%s] handle_events" % self.name)
 
-    def update(self):
+    def update(self,frame_time):
         print("State [%s] update" % self.name)
 
     def draw(self):
@@ -79,15 +82,27 @@ def quit():
     global running
     running = False
 
+current_time = 0.0
+def get_frame_time():
+    global current_time
+    frame_time = get_time() - current_time
+    current_time += frame_time
+    return frame_time
 
+
+game_time=0
 def run(start_state):
-    global running, stack
+    global running, stack,current_time,game_time
     running = True
     stack = [start_state]
     start_state.enter()
+    current_time = get_time()
     while (running):
-        stack[-1].handle_events()
-        stack[-1].update()
+        frame_time = get_frame_time()
+        game_time+=frame_time
+        stack[-1].handle_events(frame_time)
+        stack[-1].update(frame_time)
+        print(game_time)
         stack[-1].draw()
     # repeatedly delete the top of the stack
     while (len(stack) > 0):

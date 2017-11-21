@@ -1,20 +1,19 @@
-import random
 import json
 import os
 from pico2d import *
+from game_framework import *
 import game_framework
 import title_state
-
 high=False
 middle=False
 low=False
-
-
+s_enemy_list=[]
+timePass=0
 name = "MainState"
-
 player = None
 grass = None
 font = None
+s_enemy = None
 
 os.chdir('D:\\2DGame\\2017_2DGame_2015182053\\Resource')
 
@@ -22,35 +21,45 @@ os.chdir('D:\\2DGame\\2017_2DGame_2015182053\\Resource')
 class Grass:
     def __init__(self):
         self.image = load_image('grass.png')
-
     def draw(self):
         self.image.draw(400, 30)
 
+
 class Shield_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
-    WALK_SPEED_KMPH = 20.0
+    WALK_SPEED_KMPH = 15.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
     WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
 
     image = None
     WALK = 0
-    def __init__(self):
+    def __init__(self,x,y):
+        global s_enemy_list
+        self.x, self.y = x,y
+        print("test")
         self.frame = 0
+        self.dir=-1
         self.state = self.WALK
         if Shield_Enemy.image == None:
             Shield_Enemy.image = load_image('EggPawnShield.gif')
+        s_enemy_list.append(self)
 
-    def walk(self):
-        self.frame+=1
 
-    def update(self):
+    def update(self , frame_time):
         distance = Shield_Enemy.WALK_SPEED_PPS * frame_time
-        self.frame = (self.frames + 1) % 7
-        delay(0.1)
-    def draw(self):
-        self.image.clip_draw(self.frame * 100, 0 , 60, 80, self.x, self.y)
+        self.frame = (self.frame + 1) % 5
+        self.x+=(self.dir*distance)
 
+    def draw(self):
+        self.image.clip_draw(self.frame * 100, 10 , 50, 70, self.x, self.y)
+
+def SpawnEnemy():
+    global s_enemy_list
+    x = 850
+    y = 40
+    newObject = Shield_Enemy(850,80)
+    s_enemy_list.append(newObject)
 
 class Player:
     image=None
@@ -110,14 +119,13 @@ class Player:
     }
 
 
-    def update(self):
+    def update(self,frame_time):
         global low,middle,high
-        if low==True or middle==True or high==True:
+        if low == True or middle == True or high == True:
             self.frame = (self.attack_frames + 1) % 3
-            delay(0.1)
+            delay(0.05)
         else:
             self.frame=0
-        print(self.state)
         self.handle_state[self.state](self)
         #self.x += self.dir
         #if self.x >= 800:
@@ -130,7 +138,7 @@ class Player:
     def draw(self):
         global low,middle,high
         if low==True:
-            self.image.clip_draw(self.frame * 100, 665, 43, 60, self.x, self.y)
+            self.image.clip_draw(self.frame * 100, 675, 54, 55, self.x, self.y)
         elif middle==True:
             self.image.clip_draw(self.frame * 100, 720, 54, 55, self.x, self.y)
         elif high==True:
@@ -140,25 +148,18 @@ class Player:
 
 
 def enter():
-    global player,grass
+    global player,grass,s_enemy
     player=Player()
     grass=Grass()
-
-
-def get_frame_time():
-
-    global current_time
-
-    frame_time = get_time() - current_time
-    current_time += frame_time
-    return frame_time
+    s_enemy=Shield_Enemy(900,80)
 
 
 
 def exit():
-    global player,grass
+    global player,grass,s_enemy
     del(player)
     del(grass)
+    del(s_enemy)
 
 def pause():
     pass
@@ -168,7 +169,7 @@ def resume():
     pass
 
 
-def handle_events():
+def handle_events(frame_time):
     global middle,low,high
     events=get_events()
     for event in events:
@@ -187,15 +188,23 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_q:
             high = True
 
-
-def update():
-    player.update()
+def update(frame_time):
+    global timePass
+    player.update(frame_time)
+    for enemy in s_enemy_list:
+        enemy.update(frame_time)
+    timePass += frame_time
+    if(timePass>2):
+        SpawnEnemy()
+        timePass = 0
     pass
 
 
 def draw_main_scene():
     grass.draw()
     player.draw()
+    for enemy in s_enemy_list:
+        enemy.draw()
 
 
 def draw():
