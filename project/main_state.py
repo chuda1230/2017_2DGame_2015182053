@@ -7,13 +7,15 @@ import title_state
 high=False
 middle=False
 low=False
-s_enemy_list=[]
+enemy_list=[]
 timePass=0
 name = "MainState"
 player = None
 grass = None
 font = None
 s_enemy = None
+dog_enemy = None
+blue_enemy = None
 
 os.chdir('D:\\2DGame\\2017_2DGame_2015182053\\Resource')
 
@@ -24,10 +26,65 @@ class Grass:
     def draw(self):
         self.image.draw(400, 30)
 
+class Blue_Enemy:
+    PIXEL_PER_METER = (10.0 / 0.3)
+    WALK_SPEED_KMPH = 30.0
+    WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
+    WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
+    WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
+    image = None
+    WALK = 0
+
+    def __init__(self, x, y):
+        global enemy_list
+        self.x, self.y = x, y
+        print("test")
+        self.frame = 0
+        self.dir = -1
+        self.state = self.WALK
+        if Blue_Enemy.image == None:
+            Blue_Enemy.image = load_image('enemy2-1.png')
+
+    def update(self, frame_time):
+        distance = Blue_Enemy.WALK_SPEED_PPS * frame_time
+        self.frame = (self.frame + 1) % 5
+        self.x += (self.dir * distance)
+
+    def draw(self):
+        self.image.clip_draw(self.frame * 122, 2020, 55, 120, self.x, self.y)
+
+
+class Dog_Enemy:
+    PIXEL_PER_METER = (10.0 / 0.3)
+    WALK_SPEED_KMPH = 40.0
+    WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
+    WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
+    WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
+    image = None
+    WALK = 0
+
+    def __init__(self, x, y):
+        global enemy_list
+        self.x, self.y = x, y
+        print("test")
+        self.frame = 0
+        self.dir = -1
+        self.state = self.WALK
+        if Dog_Enemy.image == None:
+            Dog_Enemy.image = load_image('enemy4.png')
+
+    def update(self, frame_time):
+        distance = Dog_Enemy.WALK_SPEED_PPS * frame_time
+        self.frame = (self.frame + 1) % 6
+        self.x += (self.dir * distance)
+
+    def draw(self):
+        self.image.clip_draw(self.frame * 95, 20, 80, 50, self.x, self.y)
+
 
 class Shield_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
-    WALK_SPEED_KMPH = 15.0
+    WALK_SPEED_KMPH = 20.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
     WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
@@ -35,43 +92,62 @@ class Shield_Enemy:
     image = None
     WALK = 0
     def __init__(self,x,y):
-        global s_enemy_list
+        global enemy_list
         self.x, self.y = x,y
         print("test")
         self.frame = 0
         self.dir=-1
         self.state = self.WALK
         if Shield_Enemy.image == None:
-            Shield_Enemy.image = load_image('EggPawnShield.gif')
-        s_enemy_list.append(self)
+            Shield_Enemy.image = load_image('enemy1-1.png')
 
 
     def update(self , frame_time):
         distance = Shield_Enemy.WALK_SPEED_PPS * frame_time
-        self.frame = (self.frame + 1) % 5
+        self.frame = (self.frame + 1) % 7
         self.x+=(self.dir*distance)
 
     def draw(self):
-        self.image.clip_draw(self.frame * 100, 10 , 50, 70, self.x, self.y)
+        self.image.clip_draw(self.frame*132 , 1100 , 70, 120, self.x, self.y)
 
 def SpawnEnemy():
-    global s_enemy_list
-    x = 850
-    y = 40
-    newObject = Shield_Enemy(850,80)
-    s_enemy_list.append(newObject)
+    global enemy_list
+    enemy_data_text = '                                                   \
+        {                                                                \
+            "Dog_Enemy" : {"StartState":"LEFT_RUN", "x":850, "y":40},     \
+    	    "Shield_Enemy"    : {"StartState":"RIGHT_RUN", "x":850, "y":80},    \
+    	    "Blue_Enemy"   : {"StartState":"LEFT_STAND", "x":850, "y":80},   \
+        }                                                                \
+    '
+    num = random.randint(0, 2)
+    if (num == 0):
+        newDog = Dog_Enemy(850, 55)
+        enemy_list.append(newDog)
+    elif(num==1):
+        newObject = Shield_Enemy(850, 80)
+        enemy_list.append(newObject)
+    elif(num==2):
+        newBlue = Blue_Enemy(850, 80)
+        enemy_list.append(newBlue)
+
 
 class Player:
     image=None
+    font=None
+    heart=None
     IDLE, LOW_ATTACK, MIDDLE_ATTACK, HIGH_ATTACK=0,1,2,3
 
     def __init__(self):
-        self.x, self.y = 70, 80
+        self.x, self.y = 70, 70
         self.frame = 0
         self.attack_frames=0
         self.state=self.IDLE
         if Player.image==None:
             Player.image = load_image('Player.png')
+        if Player.font == None:
+            Player.font=load_font('ENCR10B.TTF', 20)
+        if Player.heart == None:
+            Player.heart=load_image('heart.png')
 
 
     def idle(self):
@@ -123,7 +199,6 @@ class Player:
         global low,middle,high
         if low == True or middle == True or high == True:
             self.frame = (self.attack_frames + 1) % 3
-            delay(0.05)
         else:
             self.frame=0
         self.handle_state[self.state](self)
@@ -137,29 +212,32 @@ class Player:
 
     def draw(self):
         global low,middle,high
+        Player.font.draw(0, 550, ' Score: %d' % 0, (255, 255,255))
         if low==True:
-            self.image.clip_draw(self.frame * 100, 675, 54, 55, self.x, self.y)
+            self.image.clip_draw(self.frame+70, 680, 65, 50, self.x, self.y)
         elif middle==True:
-            self.image.clip_draw(self.frame * 100, 720, 54, 55, self.x, self.y)
+            self.image.clip_draw(self.frame+70, 720, 65, 50, self.x, self.y)
         elif high==True:
-            self.image.clip_draw(self.frame * 100, 620, 54, 55, self.x, self.y)
+            self.image.clip_draw(self.frame+106, 620, 55, 60, self.x, self.y)
         else:
-            self.image.clip_draw(self.frame * 100, 510, 54, 55, self.x, self.y)
+            self.image.clip_draw(self.frame * 60, 510, 54, 55, self.x, self.y)
+        delay(0.05)
 
 
 def enter():
-    global player,grass,s_enemy
+    global player,grass,s_enemy,dog_enemy,blue_enemy
     player=Player()
     grass=Grass()
-    s_enemy=Shield_Enemy(900,80)
 
 
 
 def exit():
-    global player,grass,s_enemy
+    global player,grass,s_enemy,dog_enemy,blue_enemy
     del(player)
     del(grass)
     del(s_enemy)
+    del(dog_enemy)
+    del(blue_enemy)
 
 def pause():
     pass
@@ -191,10 +269,10 @@ def handle_events(frame_time):
 def update(frame_time):
     global timePass
     player.update(frame_time)
-    for enemy in s_enemy_list:
+    for enemy in enemy_list:
         enemy.update(frame_time)
     timePass += frame_time
-    if(timePass>2):
+    if(timePass>1):
         SpawnEnemy()
         timePass = 0
     pass
@@ -203,7 +281,7 @@ def update(frame_time):
 def draw_main_scene():
     grass.draw()
     player.draw()
-    for enemy in s_enemy_list:
+    for enemy in enemy_list:
         enemy.draw()
 
 
