@@ -2,6 +2,7 @@ import random
 from pico2d import *
 from os import *
 import main_state
+import over_state
 class GameState:
     def __init__(self, state):
         self.enter = state.enter
@@ -102,7 +103,6 @@ def run(start_state):
         game_time+=frame_time
         stack[-1].handle_events(frame_time)
         stack[-1].update(frame_time)
-        print(game_time)
         stack[-1].draw()
     # repeatedly delete the top of the stack
     while (len(stack) > 0):

@@ -5,15 +5,16 @@ from game_framework import *
 import game_framework
 import title_state
 import copy
+import over_state
 
-
-high=False
-middle=False
-low=False
 enemy_list=[]
 heart_list=[]
+
+score=0
 timePass=0
 hittime=0
+total_hit=0
+
 name = "MainState"
 player = None
 grass = None
@@ -22,7 +23,12 @@ s_enemy = None
 dog_enemy = None
 blue_enemy = None
 heart=None
+
+high=False
+middle=False
+low=False
 hit=False
+
 
 os.chdir('D:\\2DGame\\2017_2DGame_2015182053\\Resource')
 
@@ -39,24 +45,21 @@ class Heart:
         self.x=x
         self.y=y
         if Heart.image == None:
-            Heart.image = load_image('heart.png')
-    def heartspawn(self):
-        global heart_list
-        newHeart=Heart(10,10)
-        heart_list.append(newHeart)
-        newHeart=Heart(20,10)
-        heart_list.append(newHeart)
-        newHeart=Heart(30,10)
-        heart_list.append(newHeart)
+            Heart.image = load_image('heart_1.png')
     def draw(self):
         self.image.draw(self.x,self.y)
+    def erase(self):
+        heart_list.remove(self)
 
-
-
+def heartspawn():
+    global heart_list
+    for i in range(670,800,20):
+        newHeart=Heart(i,500)
+        heart_list.append(newHeart)
 
 class Blue_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
-    WALK_SPEED_KMPH = 30.0
+    WALK_SPEED_KMPH = 20.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
     WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
@@ -85,10 +88,17 @@ class Blue_Enemy:
     def get_bb(self):
         return self.x - 30, self.y - 30, self.x + 30, self.y + 30
 
+    def getType(self):
+        type = 2
+        return type
+
+    def death(self):
+        global enemy_list
+        enemy_list.remove(self)
 
 class Dog_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
-    WALK_SPEED_KMPH = 40.0
+    WALK_SPEED_KMPH = 30.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
     WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
@@ -98,7 +108,6 @@ class Dog_Enemy:
     def __init__(self, x, y):
         global enemy_list
         self.x, self.y = x, y
-        print("test")
         self.frame = 0
         self.dir = -1
         self.state = self.WALK
@@ -119,10 +128,20 @@ class Dog_Enemy:
     def draw(self):
         self.image.clip_draw(self.frame * 95, 20, 80, 50, self.x, self.y)
 
+    def getType(self):
+        type = 1
+        return type
+
+    def death(self):
+        global enemy_list
+        enemy_list.remove(self)
+
+
+
 
 class Shield_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
-    WALK_SPEED_KMPH = 20.0
+    WALK_SPEED_KMPH = 15.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
     WALK_SPEED_MPS = (WALK_SPEED_MPM / 60.0)
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
@@ -132,7 +151,6 @@ class Shield_Enemy:
     def __init__(self,x,y):
         global enemy_list
         self.x, self.y = x,y
-        print("test")
         self.frame = 0
         self.dir=-1
         self.state = self.WALK
@@ -149,19 +167,19 @@ class Shield_Enemy:
         self.image.clip_draw(self.frame*132 , 1100 , 70, 120, self.x, self.y)
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
+    def getType(self):
+        type=0
+        return type
 
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x - 20, self.y - 30, self.x + 20, self.y + 30
+    def death(self):
+        global enemy_list
+        enemy_list.remove(self)
+
 
 def SpawnEnemy():
     global enemy_list
-    enemy_data_text = '                                                   \
-        {                                                                \
-            "Dog_Enemy" : {"StartState":"LEFT_RUN", "x":850, "y":40},     \
-    	    "Shield_Enemy"    : {"StartState":"RIGHT_RUN", "x":850, "y":80},    \
-    	    "Blue_Enemy"   : {"StartState":"LEFT_STAND", "x":850, "y":80},   \
-        }                                                                \
-    '
     num = random.randint(0, 2)
     if (num == 0):
         newDog = Dog_Enemy(850, 55)
@@ -183,6 +201,7 @@ class Player:
         self.x, self.y = 70, 70
         self.frame = 0
         self.attack_frames=0
+        self.hit_frames=0
         self.state=self.IDLE
         if Player.image==None:
             Player.image = load_image('Player.png')
@@ -265,8 +284,8 @@ class Player:
 
 
     def draw(self):
-        global low,middle,high
-        Player.font.draw(0, 550, ' Score: %d' % 0, (255, 255,255))
+        global low,middle,high,score
+        Player.font.draw(0, 540, ' Score: %d' % score, (255, 255,255))
         if low==True:
             self.image.clip_draw(self.frame+70, 680, 65, 50, self.x, self.y)
         elif middle==True:
@@ -280,17 +299,21 @@ class Player:
         delay(0.05)
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
-
+    def attack_bb(self):
+        return self.x - 30, self.y - 30, self.x + 50, self.y + 30
     def get_bb(self):
         return self.x - 30, self.y - 30, self.x + 30, self.y + 30
-
+    def draw_attack_bb(self):
+        draw_rectangle(*self.attack_bb())
+def getScore():
+    global score
+    return score
 
 def enter():
     global player,grass,s_enemy,dog_enemy,blue_enemy,heart
     player=Player()
     grass=Grass()
-    for heart in heart_list:
-        heart.heartspawn()
+    heartspawn()
 
 
 
@@ -319,6 +342,15 @@ def collide(a, b):
     if bottom_a > top_b: return False
     return True
 
+def attack_collide(a, b):
+    left_a, bottom_a, right_a, top_a = a.attack_bb()
+    left_b, bottom_b, right_b, top_b = b.get_bb()
+    if left_a>right_b: return False
+    if right_a < left_b: return False
+    if top_a < bottom_b:  return False
+    if bottom_a > top_b: return False
+    return True
+
 
 def handle_events(frame_time):
     global middle,low,high
@@ -340,7 +372,11 @@ def handle_events(frame_time):
             high = True
 
 def update(frame_time):
-    global timePass,hit,hittime
+    global timePass,hit,hittime,total_hit,score
+    for heart in heart_list:
+        if(hit == True):
+            heart.erase()
+            hit=False
     player.update(frame_time)
     for enemy in enemy_list:
         enemy.update(frame_time)
@@ -350,11 +386,22 @@ def update(frame_time):
         SpawnEnemy()
         timePass = 0
     for enemy in enemy_list:
-        if collide(player,enemy) and hittime>2:
+        if collide(player,enemy) and hittime>1.6:
             hit=True
+            total_hit+=1
             hittime=0
+            if (total_hit == 7.0):
+                game_framework.push_state(over_state)
+        if attack_collide(player,enemy) and enemy.getType() == 0 and high==True:
+            enemy.death()
+            score+=10
+        elif attack_collide(player,enemy) and enemy.getType() == 1 and low==True:
+            enemy.death()
+            score+=10
+        elif attack_collide(player,enemy) and enemy.getType() == 2 and middle==True:
+            enemy.death()
+            score+=10
 
-    pass
 
 
 def draw_main_scene():
@@ -362,7 +409,10 @@ def draw_main_scene():
     player.draw()
     for heart in heart_list:
         heart.draw()
-    player.draw_bb()
+    if(low==True or middle==True or high==True):
+        player.draw_attack_bb()
+    else:
+        player.draw_bb()
     for enemy in enemy_list:
         enemy.draw()
     for enemy in enemy_list:

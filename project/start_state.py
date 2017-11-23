@@ -21,7 +21,7 @@ def exit():
 
 import title_state
 
-def update():
+def update(frame_time):
     global logo_time
 
     if(logo_time>1.0):
@@ -41,7 +41,7 @@ def draw():
 
 
 
-def handle_events():
+def handle_events(frame_time):
     events = get_events()
     pass
 
