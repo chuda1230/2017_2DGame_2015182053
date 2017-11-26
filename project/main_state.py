@@ -4,8 +4,10 @@ from pico2d import *
 from game_framework import *
 import game_framework
 import title_state
+from attack_effect import Attack_Effect
 import copy
 import over_state
+import pause_state
 
 enemy_list=[]
 heart_list=[]
@@ -16,13 +18,15 @@ hittime=0
 total_hit=0
 
 name = "MainState"
+attack_effect=None
 player = None
-grass = None
+background = None
 font = None
 s_enemy = None
 dog_enemy = None
 blue_enemy = None
 heart=None
+face=None
 
 high=False
 middle=False
@@ -32,8 +36,14 @@ hit=False
 
 os.chdir('D:\\2DGame\\2017_2DGame_2015182053\\Resource')
 
+class Face:
+    def __init__(self):
+        self.image = load_image('kim.PNG')
+    def draw(self):
+        self.image.draw(630, 500)
 
-class Grass:
+
+class Background:
     def __init__(self):
         self.image = load_image('background.png')
     def draw(self):
@@ -86,7 +96,12 @@ class Blue_Enemy:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x - 30, self.y - 30, self.x, self.y + 30
+
+    def getEffectX(self):
+        return self.x-30
+    def getEffectY(self):
+        return self.y
 
     def getType(self):
         type = 2
@@ -123,7 +138,7 @@ class Dog_Enemy:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x - 30, self.y - 30, self.x, self.y + 30
 
     def draw(self):
         self.image.clip_draw(self.frame * 95, 20, 80, 50, self.x, self.y)
@@ -131,6 +146,11 @@ class Dog_Enemy:
     def getType(self):
         type = 1
         return type
+
+    def getEffectX(self):
+        return self.x-30
+    def getEffectY(self):
+        return self.y-30
 
     def death(self):
         global enemy_list
@@ -172,7 +192,14 @@ class Shield_Enemy:
         return type
 
     def get_bb(self):
-        return self.x - 20, self.y - 30, self.x + 20, self.y + 30
+        return self.x - 20, self.y - 30, self.x, self.y + 30
+
+    def getEffectX(self):
+        return self.x
+
+    def getEffectY(self):
+        return self.y-30
+
     def death(self):
         global enemy_list
         enemy_list.remove(self)
@@ -204,7 +231,7 @@ class Player:
         self.hit_frames=0
         self.state=self.IDLE
         if Player.image==None:
-            Player.image = load_image('Player.png')
+            Player.image = load_image('player.png')
         if Player.font == None:
             Player.font=load_font('ENCR10B.TTF', 20)
 
@@ -300,31 +327,36 @@ class Player:
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
     def attack_bb(self):
-        return self.x - 30, self.y - 30, self.x + 50, self.y + 30
+        return self.x, self.y - 30, self.x + 50, self.y + 30
     def get_bb(self):
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x, self.y - 30, self.x + 30, self.y + 30
     def draw_attack_bb(self):
         draw_rectangle(*self.attack_bb())
+
 def getScore():
     global score
     return score
 
 def enter():
-    global player,grass,s_enemy,dog_enemy,blue_enemy,heart
+    global player,background,s_enemy,dog_enemy,blue_enemy,heart,face,attack_effect
+    background = Background()
     player=Player()
-    grass=Grass()
+    face=Face()
     heartspawn()
+    attack_effect=Attack_Effect()
 
 
 
 def exit():
-    global player,grass,s_enemy,dog_enemy,blue_enemy,heart
+    global player,background,s_enemy,dog_enemy,blue_enemy,heart,face
     del(player)
-    del(grass)
+    del(background)
     del(s_enemy)
     del(dog_enemy)
     del(blue_enemy)
     del(heart)
+    del(face)
+    del(attack_effect)
 
 def pause():
     pass
@@ -370,6 +402,8 @@ def handle_events(frame_time):
             low=True
         elif event.type == SDL_KEYDOWN and event.key == SDLK_q:
             high = True
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
+            game_framework.push_state(pause_state)
 
 def update(frame_time):
     global timePass,hit,hittime,total_hit,score
@@ -378,6 +412,7 @@ def update(frame_time):
             heart.erase()
             hit=False
     player.update(frame_time)
+
     for enemy in enemy_list:
         enemy.update(frame_time)
     timePass += frame_time
@@ -385,6 +420,7 @@ def update(frame_time):
     if(timePass>1):
         SpawnEnemy()
         timePass = 0
+
     for enemy in enemy_list:
         if collide(player,enemy) and hittime>1.6:
             hit=True
@@ -393,20 +429,28 @@ def update(frame_time):
             if (total_hit == 7.0):
                 game_framework.push_state(over_state)
         if attack_collide(player,enemy) and enemy.getType() == 0 and high==True:
+            attack_effect.update()
             enemy.death()
             score+=10
         elif attack_collide(player,enemy) and enemy.getType() == 1 and low==True:
+            attack_effect.update()
             enemy.death()
             score+=10
         elif attack_collide(player,enemy) and enemy.getType() == 2 and middle==True:
+            attack_effect.update()
             enemy.death()
             score+=10
 
 
 
 def draw_main_scene():
-    grass.draw()
+    background.draw()
+    face.draw()
     player.draw()
+    for enemy in enemy_list:
+        if(attack_collide(player,enemy) and enemy.getType() == 0):
+            attack_effect.draw(enemy.getEffectX(),enemy.getEffectY())
+
     for heart in heart_list:
         heart.draw()
     if(low==True or middle==True or high==True):
@@ -415,7 +459,6 @@ def draw_main_scene():
         player.draw_bb()
     for enemy in enemy_list:
         enemy.draw()
-    for enemy in enemy_list:
         enemy.draw_bb()
 
 
