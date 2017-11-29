@@ -417,7 +417,7 @@ def update(frame_time):
         enemy.update(frame_time)
     timePass += frame_time
     hittime += frame_time
-    if(timePass>1):
+    if(timePass>3):
         SpawnEnemy()
         timePass = 0
 

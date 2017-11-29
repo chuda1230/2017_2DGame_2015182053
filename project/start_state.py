@@ -9,7 +9,6 @@ logo_time = 0.0
 
 def enter():
     global image
-    open_canvas()
     import os
     os.chdir("D:\\2DGame\\2017_2DGame_2015182053\\Resource")
     image=load_image('kpu_credit.png')
