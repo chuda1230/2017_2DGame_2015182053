@@ -11,7 +11,7 @@ class Attack_Effect:
         self.frame = 0
         self.frames = 0
         if Attack_Effect.image==None:
-            Attack_Effect.image=load_image('attack_effect.png')
+            Attack_Effect.image=load_image('Resource\\attack_effect.png')
 
     def update(self):
                     self.frame = (self.frame + 1) % 6

@@ -8,9 +8,7 @@ image = None
 
 def enter():
     global image
-    import os
-    os.chdir("D:\\2DGame\\2017_2DGame_2015182053\\Resource")
-    image=load_image('title.png')
+    image=load_image('Resource\\title.png')
 
 
 def exit():

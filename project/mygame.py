@@ -6,6 +6,6 @@ import start_state
 import main_state
 import over_state
 open_canvas(sync=True)
-game_framework.run(start_state)
+game_framework.run(main_state)
 close_canvas()
 # fill here
