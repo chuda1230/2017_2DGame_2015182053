@@ -4,13 +4,14 @@ from Heart import *
 import game_framework
 import title_state
 from attack_effect import Attack_Effect
-from Player import Player
+from Player import *
 from Enemy import getEnemy_list,SpawnEnemy
 from Background import *
 from Collide import *
 import over_state
 import pause_state
 
+total_time=0
 timePass=0
 hittime=0
 total_hit=0
@@ -21,14 +22,11 @@ attack_effect=None
 player = None
 background = None
 font = None
-s_enemy = None
-dog_enemy = None
-blue_enemy = None
 heart=None
 face=None
 
 def enter():
-    global player,background,s_enemy,dog_enemy,blue_enemy,heart,face,attack_effect,score
+    global player,background,heart,face,attack_effect,score
     background = Background()
     player=Player()
     face=Face()
@@ -37,7 +35,7 @@ def enter():
 
 def exit():
     dellist=getEnemy_list()
-    global player,background,s_enemy,dog_enemy,blue_enemy,heart,face,score
+    global player,background,heart,face,score
     del(player)
     del(background)
     del(dellist)
@@ -75,7 +73,7 @@ def handle_events(frame_time):
             game_framework.push_state(pause_state)
 
 def update(frame_time):
-    global timePass,hittime,total_hit,score
+    global timePass,hittime,total_hit,combo,total_time
     for heart in heart_list:
         if(player.hit == True):
             heart.erase()
@@ -84,30 +82,35 @@ def update(frame_time):
 
     for enemy in getEnemy_list():
         enemy.update(frame_time)
+    total_time+=(frame_time*0.01)
     timePass += frame_time
     hittime += frame_time
-    if(timePass>1.5):
+    if(timePass>1.5-total_time):
         SpawnEnemy()
         timePass = 0
 
     for enemy in getEnemy_list():
         if collide(player,enemy) and hittime>1.6:
             player.hit=True
+            Player.ComboZero(0)
             hittime=0
             if (len(heart_list)-1 == 0):
                 game_framework.push_state(over_state)
         if attack_collide(player,enemy) and enemy.getType() == 0 and player.high==True:
             attack_effect.update()
             enemy.death()
-            Player.PlusScore(10)
+            Player.PlusCombo(1)
+            Player.PlusScore(10, GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 1 and player.low==True:
             attack_effect.update()
             enemy.death()
-            Player.PlusScore(10)
+            Player.PlusCombo(1)
+            Player.PlusScore(10,GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 2 and player.middle==True:
             attack_effect.update()
             enemy.death()
-            Player.PlusScore(10)
+            Player.PlusCombo(1)
+            Player.PlusScore(10, GetCombo())
 
 def draw_main_scene():
     background.draw()

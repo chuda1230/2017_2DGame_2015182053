@@ -8,7 +8,7 @@ image = None
 
 def enter():
     global image
-    image=load_image('Resource\\title.png')
+    image=load_image('Resource\\title2.png')
 
 
 def exit():
@@ -34,11 +34,6 @@ def draw():
     clear_canvas()
     image.draw(400,300)
     update_canvas()
-
-
-
-
-
 
 
 def update(frame_time):

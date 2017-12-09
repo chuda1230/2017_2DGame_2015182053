@@ -1,5 +1,6 @@
 from game_framework import *
 enemy_list=[]
+total_time=0
 class Blue_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
     WALK_SPEED_KMPH = 20.0
@@ -16,10 +17,13 @@ class Blue_Enemy:
         self.dir = -1
         self.state = self.WALK
         if Blue_Enemy.image == None:
-            Blue_Enemy.image = load_image('Resource\\enemy2-1.png')
+            Blue_Enemy.image = load_image('Resource\\Blue_enemy.png')
 
     def update(self, frame_time):
-        distance = Blue_Enemy.WALK_SPEED_PPS * frame_time
+        global total_time
+        total_time=total_time+frame_time
+        addspeed = total_time*0.0005
+        distance = Blue_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 5
         self.x += (self.dir * distance)
 
@@ -52,6 +56,7 @@ class Dog_Enemy:
     WALK_SPEED_PPS = (WALK_SPEED_MPS * PIXEL_PER_METER)
     image = None
     WALK = 0
+    JUMP = 1
 
     def __init__(self, x, y):
         global enemy_list
@@ -60,10 +65,13 @@ class Dog_Enemy:
         self.dir = -1
         self.state = self.WALK
         if Dog_Enemy.image == None:
-            Dog_Enemy.image = load_image('Resource\\enemy4.png')
+            Dog_Enemy.image = load_image('Resource\\Dog_enemy.png')
 
     def update(self, frame_time):
-        distance = Dog_Enemy.WALK_SPEED_PPS * frame_time
+        global total_time
+        total_time = total_time + frame_time
+        addspeed = total_time * 0.0005
+        distance = Dog_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 6
         self.x += (self.dir * distance)
 
@@ -75,6 +83,7 @@ class Dog_Enemy:
 
     def draw(self):
         self.image.clip_draw(self.frame * 95, 20, 80, 50, self.x, self.y)
+        #self.image.clip_draw(self.frame + 635, 20, 40, 70, self.x, self.y)
 
     def getType(self):
         type = 1
@@ -90,7 +99,7 @@ class Dog_Enemy:
         enemy_list.remove(self)
 
 
-class Shield_Enemy:
+class Muscle_Enemy:
     PIXEL_PER_METER = (10.0 / 0.3)
     WALK_SPEED_KMPH = 15.0
     WALK_SPEED_MPM = (WALK_SPEED_KMPH * 1000.0 / 60.0)
@@ -105,12 +114,15 @@ class Shield_Enemy:
         self.frame = 0
         self.dir=-1
         self.state = self.WALK
-        if Shield_Enemy.image == None:
-            Shield_Enemy.image = load_image('Resource\\enemy1-1.png')
+        if Muscle_Enemy.image == None:
+            Muscle_Enemy.image = load_image('Resource\\Muscle_enemy.png')
 
 
     def update(self , frame_time):
-        distance = Shield_Enemy.WALK_SPEED_PPS * frame_time
+        global total_time
+        total_time = total_time + frame_time
+        addspeed = total_time * 0.0005
+        distance = Muscle_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 7
         self.x+=(self.dir*distance)
 
@@ -142,7 +154,7 @@ def SpawnEnemy():
         newDog = Dog_Enemy(850, 55)
         enemy_list.append(newDog)
     elif(num==1):
-        newObject = Shield_Enemy(850, 80)
+        newObject = Muscle_Enemy(850, 80)
         enemy_list.append(newObject)
     elif(num==2):
         newBlue = Blue_Enemy(850, 80)

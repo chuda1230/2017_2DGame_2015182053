@@ -10,7 +10,7 @@ counter = 0
 
 def enter():
     global image
-    image=load_image('pause.png')
+    image=load_image('Resource\\pause.png')
 
 def exit():
     global image

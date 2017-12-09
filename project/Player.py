@@ -1,6 +1,7 @@
 from game_framework import *
 
 score=0
+combo=0
 
 class Player:
     high = False
@@ -93,6 +94,13 @@ class Player:
 
 
     def draw(self):
+        if combo<5:
+            Player.font.draw(12, 520,'Combo: %d' % combo,(255, 255, 255))
+        elif combo<10 and combo>=5:
+            Player.font.draw(12, 520, 'Combo: %d' % combo, (255, 255, 0))
+        elif combo >= 10:
+            Player.font.draw(12, 520, 'Combo: %d' % combo, (255, 0, 0))
+
         Player.font.draw(0, 540, ' Score: %d' % score, (255, 255, 255))
         if self.low==True:
             self.image.clip_draw(self.frame+70, 680, 65, 50, self.x, self.y)
@@ -114,11 +122,22 @@ class Player:
     def draw_attack_bb(self):
         draw_rectangle(*self.attack_bb())
 
-    def PlusScore(num):
+    def PlusScore(num,combo):
         global score
-        score+=num
+        score+=num+combo
         return score
+    def PlusCombo(num):
+        global combo
+        combo+=num
+        return combo
+    def ComboZero(num):
+        global combo
+        combo=combo*num
+        return combo
 
 def GetScore():
     global score
     return score
+def GetCombo():
+    global combo
+    return combo
