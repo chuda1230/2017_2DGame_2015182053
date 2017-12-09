@@ -10,6 +10,9 @@ class Player:
     hit = False
     image=None
     font=None
+    high_attack_sound = None
+    middle_attack_sound = None
+    low_attack_sound = None
     IDLE, LOW_ATTACK, MIDDLE_ATTACK, HIGH_ATTACK,HIT=0,1,2,3,4
 
     def __init__(self):
@@ -22,7 +25,15 @@ class Player:
             Player.image = load_image('Resource\\player.png')
         if Player.font == None:
             Player.font=load_font('Resource\\ENCR10B.TTF', 20)
-
+        if Player.high_attack_sound == None:
+            Player.high_attack_sound = load_wav('Resource\\high_attack.ogg')
+            Player.high_attack_sound.set_volume(32)
+        if Player.middle_attack_sound == None:
+            Player.middle_attack_sound = load_wav('Resource\\middle_attack.ogg')
+            Player.middle_attack_sound.set_volume(32)
+        if Player.low_attack_sound == None:
+            Player.low_attack_sound = load_wav('Resource\\low_attack.ogg')
+            Player.low_attack_sound.set_volume(32)
 
     def idle(self):
         global high,middle,low

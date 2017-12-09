@@ -97,17 +97,20 @@ def update(frame_time):
             if (len(heart_list)-1 == 0):
                 game_framework.push_state(over_state)
         if attack_collide(player,enemy) and enemy.getType() == 0 and player.high==True:
-            attack_effect.update()
+            Player.high_attack_sound.play()
+            attack_effect.draw(0,0)
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 1 and player.low==True:
             attack_effect.update()
+            Player.low_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10,GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 2 and player.middle==True:
             attack_effect.update()
+            Player.middle_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
@@ -116,10 +119,6 @@ def draw_main_scene():
     background.draw()
     face.draw()
     player.draw()
-    for enemy in getEnemy_list():
-        if(attack_collide(player,enemy) and enemy.getType() == 0):
-            attack_effect.draw(enemy.getEffectX(),enemy.getEffectY())
-
     for heart in heart_list:
         heart.draw()
     if(player.low==True or player.middle==True or player.high==True):

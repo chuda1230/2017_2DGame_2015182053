@@ -3,7 +3,6 @@ import game_framework
 image=None
 
 class Attack_Effect:
-    ILDE = 0
     image=None
     def __init__(self):
         self.x=0
@@ -14,10 +13,10 @@ class Attack_Effect:
             Attack_Effect.image=load_image('Resource\\attack_effect.png')
 
     def update(self):
-                    self.frame = (self.frame + 1) % 6
+                    self.frame = (self.frames + 1) % 6
 
     def draw(self,x,y):
-        self.image.clip_draw(self.frame * 70, 370, 800, 80, x, y)
+        self.image.clip_draw(40, 370, 40, 70, 30, 40)
 
 
 

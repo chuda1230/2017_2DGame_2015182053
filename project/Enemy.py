@@ -22,7 +22,7 @@ class Blue_Enemy:
     def update(self, frame_time):
         global total_time
         total_time=total_time+frame_time
-        addspeed = total_time*0.0005
+        addspeed = total_time*0.0001
         distance = Blue_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 5
         self.x += (self.dir * distance)
@@ -70,7 +70,7 @@ class Dog_Enemy:
     def update(self, frame_time):
         global total_time
         total_time = total_time + frame_time
-        addspeed = total_time * 0.0005
+        addspeed = total_time * 0.0001
         distance = Dog_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 6
         self.x += (self.dir * distance)
@@ -121,7 +121,7 @@ class Muscle_Enemy:
     def update(self , frame_time):
         global total_time
         total_time = total_time + frame_time
-        addspeed = total_time * 0.0005
+        addspeed = total_time * 0.0001
         distance = Muscle_Enemy.WALK_SPEED_PPS * (frame_time+addspeed)
         self.frame = (self.frame + 1) % 7
         self.x+=(self.dir*distance)
