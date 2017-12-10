@@ -82,7 +82,7 @@ def update(frame_time):
 
     for enemy in getEnemy_list():
         enemy.update(frame_time)
-    total_time+=(frame_time*0.01)
+    total_time+=(frame_time*0.0001)
     timePass += frame_time
     hittime += frame_time
     if(timePass>1.5-total_time):
