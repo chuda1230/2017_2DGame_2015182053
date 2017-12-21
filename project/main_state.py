@@ -69,6 +69,8 @@ def handle_events(frame_time):
             player.low=True
         elif event.type == SDL_KEYDOWN and event.key == SDLK_q:
             player.high = True
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_w:
+            player.air = True
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
             game_framework.push_state(pause_state)
 
@@ -111,6 +113,11 @@ def update(frame_time):
         elif attack_collide(player,enemy) and enemy.getType() == 2 and player.middle==True:
             attack_effect.update()
             Player.middle_attack_sound.play()
+            enemy.death()
+            Player.PlusCombo(1)
+            Player.PlusScore(10, GetCombo())
+        elif attack_collide(player,enemy) and enemy.getType() == 3 and player.air==True:
+            attack_effect.update()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())

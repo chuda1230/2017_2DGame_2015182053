@@ -7,13 +7,14 @@ class Player:
     high = False
     middle = False
     low = False
+    air = False
     hit = False
     image=None
     font=None
     high_attack_sound = None
     middle_attack_sound = None
     low_attack_sound = None
-    IDLE, LOW_ATTACK, MIDDLE_ATTACK, HIGH_ATTACK,HIT=0,1,2,3,4
+    IDLE, LOW_ATTACK, MIDDLE_ATTACK, HIGH_ATTACK,HIT, AIR_ATTACK=0,1,2,3,4,5
 
     def __init__(self):
         self.x, self.y = 70, 70
@@ -36,7 +37,7 @@ class Player:
             Player.low_attack_sound.set_volume(32)
 
     def idle(self):
-        global high,middle,low
+        global high,middle,low,air
         self.frame=0
         self.attack_frames=0
         self.hit_frames=0
@@ -46,6 +47,8 @@ class Player:
             self.state=self.MIDDLE_ATTACK
         elif self.high==True:
             self.state=self.HIGH_ATTACK
+        elif self.air==True:
+            self.state=self.AIR_ATTACK
         elif self.hit==True:
             self.state=self.HIT
 
@@ -70,6 +73,12 @@ class Player:
             self.high = False
             self.state = self.IDLE
             self.attack_frames = 0
+    def air_kick(self):
+        self.attack_frames +=1
+        if self.attack_frames == 2:
+            self.air=False
+            self.state = self.IDLE
+            self.attack_frames = 0
 
     def hit_motion(self):
         self.hit_frames +=1
@@ -84,12 +93,13 @@ class Player:
         LOW_ATTACK: low_kick,
         MIDDLE_ATTACK: middle_kick,
         HIGH_ATTACK: high_kick,
+        AIR_ATTACK: air_kick,
         HIT: hit_motion
     }
 
 
     def update(self,frame_time):
-        if self.low == True or self.middle == True or self.high == True:
+        if self.low == True or self.middle == True or self.high == True or self.air == True:
             self.frame = (self.attack_frames + 1) % 3
         elif self.hit == True:
             self.frame = (self.hit_frames+1)%3
@@ -119,11 +129,14 @@ class Player:
             self.image.clip_draw(self.frame+70, 720, 65, 50, self.x, self.y)
         elif self.high==True:
             self.image.clip_draw(self.frame+106, 620, 55, 60, self.x, self.y)
+        elif self.air==True:
+            self.image.clip_draw(self.frame+192, 350,55,70,self.x,self.y)
         elif self.hit==True:
             self.image.clip_draw(self.frame, 450, 45, 55,self.x,self.y)
         else:
             self.image.clip_draw(self.frame * 60, 510, 54, 55, self.x, self.y)
         delay(0.05)
+
     def draw_bb(self):
         draw_rectangle(*self.get_bb())
     def attack_bb(self):

@@ -147,9 +147,62 @@ class Muscle_Enemy:
         global enemy_list
         enemy_list.remove(self)
 
+class Rocket_Enemy:
+    PIXEL_PER_METER = (10.0 / 0.3)
+    FLY_SPEED_KMPH = 35.0
+    FLY_SPEED_MPM = (FLY_SPEED_KMPH * 1000.0 / 60.0)
+    FLY_SPEED_MPS = (FLY_SPEED_MPM / 60.0)
+    FLY_SPEED_PPS = (FLY_SPEED_MPS * PIXEL_PER_METER)
+    image = None
+    FLY = 0
+
+    def __init__(self, x, y):
+        global enemy_list
+        self.x, self.y = x, y
+        self.frame = 0
+        self.dir = -1
+        self.state = self.FLY
+        if Rocket_Enemy.image == None:
+            Rocket_Enemy.image = load_image('Resource\\rocket_enemy.png')
+
+    def update(self, frame_time):
+        global total_time
+        total_time = total_time + frame_time
+        addspeed = total_time * 0.0001
+        distance = Rocket_Enemy.FLY_SPEED_PPS * (frame_time+addspeed)
+        self.frame = (self.frame + 1) % 6
+        self.x += (self.dir * distance)
+        self.y += (self.dir * distance)
+
+    def draw_bb(self):
+        draw_rectangle(*self.get_bb())
+
+    def get_bb(self):
+        return self.x-30, self.y-30, self.x-30, self.y - 30
+
+    def draw(self):
+        self.image.clip_draw(self.frame + 450, 450, 120, 140, self.x, self.y)
+        #self.image.clip_draw(self.frame + 635, 20, 40, 70, self.x, self.y)
+
+    def getType(self):
+        type = 3
+        return type
+
+    def getEffectX(self):
+        return self.x-30
+    def getEffectY(self):
+        return self.y-30
+
+    def death(self):
+        global enemy_list
+        enemy_list.remove(self)
+
+
 def SpawnEnemy():
     global enemy_list
-    num = random.randint(0,2)
+    num = random.randint(0,3)
+    #num=3
+
     if (num == 0):
         newDog = Dog_Enemy(850, 55)
         enemy_list.append(newDog)
@@ -159,6 +212,9 @@ def SpawnEnemy():
     elif(num==2):
         newBlue = Blue_Enemy(850, 80)
         enemy_list.append(newBlue)
+    elif(num==3):
+        newRocket = Rocket_Enemy(850,850)
+        enemy_list.append(newRocket)
 
 def getEnemy_list():
     global enemy_list
