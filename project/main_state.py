@@ -4,7 +4,7 @@ from Heart import *
 import game_framework
 import title_state
 from Player import *
-from Enemy import getEnemy_list,SpawnEnemy
+from Enemy import getEnemy_list,SpawnEnemy,delEnemy_list
 from Background import *
 from Collide import *
 import over_state
@@ -24,21 +24,20 @@ heart=None
 face=None
 
 def enter():
-    global player,background,heart,face,score
+    global player,background,heart,face
     background = Background()
     player=Player()
     face=Face()
     heartspawn()
+    SetScore(0)
 
 def exit():
-    dellist=getEnemy_list()
-    global player,background,heart,face,score
-    del(player)
+    global player,background,heart,face
     del(background)
-    del(dellist)
-    del(heart)
+    delEnemy_list()
+    if heart != None:
+        del(heart)
     del(face)
-    del(score)
 
 def pause():
     pass
@@ -55,10 +54,6 @@ def handle_events(frame_time):
             game_framework.quit()
         elif event.type==SDL_KEYDOWN and event.key==SDLK_ESCAPE:
             game_framework.change_state(title_state)
-            #game_framework.quit()
-        #if p key goto pause_state
-        #elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
-            #game_framework.push_state(pause_state)
         elif event.type==SDL_KEYDOWN and event.key==SDLK_a:
             player.middle=True
         elif event.type==SDL_KEYDOWN and event.key==SDLK_z:
@@ -88,13 +83,15 @@ def update(frame_time):
         timePass = 0
 
     for enemy in getEnemy_list():
-        if collide(player,enemy) and hittime>1.6:
-            player.hit=True
-            Player.ComboZero(0)
-            hittime=0
+        if collide(player,enemy) and hittime>1.0:
             if (len(heart_list)-1 == 0):
-                game_framework.push_state(over_state)
-        if attack_collide(player,enemy) and enemy.getType() == 0 and player.high==True:
+                game_framework.change_state(over_state)
+            else:
+                player.hit=True
+                Player.ComboZero(0)
+                hittime=0
+
+        elif attack_collide(player,enemy) and enemy.getType() == 0 and player.high==True:
             Player.high_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
@@ -110,6 +107,7 @@ def update(frame_time):
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 3 and player.air==True:
+            Player.high_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
@@ -120,13 +118,10 @@ def draw_main_scene():
     player.draw()
     for heart in heart_list:
         heart.draw()
-    if(player.low==True or player.middle==True or player.high==True):
-        player.draw_attack_bb()
-    else:
-        player.draw_bb()
+
     for enemy in getEnemy_list():
         enemy.draw()
-        enemy.draw_bb()
+        #enemy.draw_bb()
 
 def draw():
     clear_canvas()

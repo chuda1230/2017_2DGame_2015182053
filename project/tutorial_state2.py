@@ -8,7 +8,8 @@ image = None
 
 def enter():
     global image
-    image=load_image('Resource\\tutorial2.png')
+    if image == None:
+        image=load_image('Resource\\tutorial2.png')
 
 
 def exit():

@@ -1,6 +1,6 @@
 import game_framework
 from pico2d import *
-
+import tutorial_state1
 
 name = "TitleState"
 image = None
@@ -15,7 +15,7 @@ def exit():
     global image
     del(image)
 
-import tutorial_state1
+
 
 def handle_events(frame_time):
     events=get_events()
@@ -42,7 +42,6 @@ def update(frame_time):
 
 def pause():
     pass
-
 
 def resume():
     pass

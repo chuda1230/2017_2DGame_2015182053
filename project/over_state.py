@@ -39,13 +39,14 @@ def enter():
 
 
 def exit():
-    global image,player
+    global image,player,score
     del(image)
     del(player)
-
-import main_state
+    score = 0
+import title_state
 
 def handle_events(frame_time):
+    global score
     events=get_events()
     for event in events:
         if event.type==SDL_QUIT:
@@ -55,6 +56,7 @@ def handle_events(frame_time):
                 game_framework.quit()
             elif(event.type,event.key)==(SDL_KEYDOWN,SDLK_SPACE):
                 game_framework.push_state(title_state)
+
 
 
 

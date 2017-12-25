@@ -178,7 +178,7 @@ class Rocket_Enemy:
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x-30, self.y-30, self.x-30, self.y - 30
+        return self.x - 20, self.y - 30, self.x, self.y + 30
 
     def draw(self):
         self.image.clip_draw(self.frame + 450, 450, 120, 140, self.x, self.y)
@@ -200,8 +200,8 @@ class Rocket_Enemy:
 
 def SpawnEnemy():
     global enemy_list
-    #num = random.randint(0,3)
-    num=3
+    num = random.randint(0,3)
+    #num=3
 
     if (num == 0):
         newDog = Dog_Enemy(850, 55)
@@ -219,6 +219,10 @@ def SpawnEnemy():
 def getEnemy_list():
     global enemy_list
     return enemy_list
+def delEnemy_list():
+    global enemy_list
+    del enemy_list
+    enemy_list=[]
 
 
 

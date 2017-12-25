@@ -14,6 +14,7 @@ class Player:
     high_attack_sound = None
     middle_attack_sound = None
     low_attack_sound = None
+    sky_attack_sound = None
     IDLE, LOW_ATTACK, MIDDLE_ATTACK, HIGH_ATTACK,HIT, AIR_ATTACK=0,1,2,3,4,5
 
     def __init__(self):
@@ -35,6 +36,9 @@ class Player:
         if Player.low_attack_sound == None:
             Player.low_attack_sound = load_wav('Resource\\low_attack.ogg')
             Player.low_attack_sound.set_volume(32)
+        if Player.sky_attack_sound == None:
+            Player.sky_attack_sound = load_wav('Resource\\high_attack.ogg')
+            Player.sky_attack_sound.set_volume(32)
 
     def idle(self):
         global high,middle,low,air
@@ -161,6 +165,10 @@ class Player:
 
 def GetScore():
     global score
+    return score
+def SetScore(num):
+    global score
+    score=num
     return score
 def GetCombo():
     global combo
