@@ -3,7 +3,6 @@ import os
 from Heart import *
 import game_framework
 import title_state
-from attack_effect import Attack_Effect
 from Player import *
 from Enemy import getEnemy_list,SpawnEnemy
 from Background import *
@@ -18,7 +17,6 @@ total_hit=0
 
 name = "MainState"
 score = None
-attack_effect=None
 player = None
 background = None
 font = None
@@ -26,12 +24,11 @@ heart=None
 face=None
 
 def enter():
-    global player,background,heart,face,attack_effect,score
+    global player,background,heart,face,score
     background = Background()
     player=Player()
     face=Face()
     heartspawn()
-    attack_effect=Attack_Effect()
 
 def exit():
     dellist=getEnemy_list()
@@ -42,7 +39,6 @@ def exit():
     del(heart)
     del(face)
     del(score)
-    del(attack_effect)
 
 def pause():
     pass
@@ -100,24 +96,20 @@ def update(frame_time):
                 game_framework.push_state(over_state)
         if attack_collide(player,enemy) and enemy.getType() == 0 and player.high==True:
             Player.high_attack_sound.play()
-            attack_effect.draw(0,0)
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 1 and player.low==True:
-            attack_effect.update()
             Player.low_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10,GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 2 and player.middle==True:
-            attack_effect.update()
             Player.middle_attack_sound.play()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())
         elif attack_collide(player,enemy) and enemy.getType() == 3 and player.air==True:
-            attack_effect.update()
             enemy.death()
             Player.PlusCombo(1)
             Player.PlusScore(10, GetCombo())

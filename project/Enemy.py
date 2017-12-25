@@ -200,8 +200,8 @@ class Rocket_Enemy:
 
 def SpawnEnemy():
     global enemy_list
-    num = random.randint(0,3)
-    #num=3
+    #num = random.randint(0,3)
+    num=3
 
     if (num == 0):
         newDog = Dog_Enemy(850, 55)

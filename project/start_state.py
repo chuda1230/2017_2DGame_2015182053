@@ -14,7 +14,6 @@ def enter():
 def exit():
     global image
     del(image)
-    close_canvas()
 
 import title_state
 

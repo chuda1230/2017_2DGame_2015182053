@@ -15,7 +15,7 @@ def exit():
     global image
     del(image)
 
-import main_state
+import tutorial_state1
 
 def handle_events(frame_time):
     events=get_events()
@@ -26,7 +26,7 @@ def handle_events(frame_time):
             if(event.type,event.key)==(SDL_KEYDOWN,SDLK_ESCAPE):
                 game_framework.quit()
             elif(event.type,event.key)==(SDL_KEYDOWN,SDLK_SPACE):
-                game_framework.push_state(main_state)
+                game_framework.push_state(tutorial_state1)
 
 
 
